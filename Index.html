@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🔬 BioChem Pro Lab | آزمایشگاه حرفه‌ای</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Vazirmatn', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        
+        body {
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Professional Glassmorphism */
+        .glass-panel {
+            background: rgba(20, 20, 30, 0.7);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Neon Accents */
+        .neon-cyan {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4), inset 0 0 20px rgba(6, 182, 212, 0.1);
+            border-color: rgba(6, 182, 212, 0.5);
+        }
+
+        .neon-purple {
+            box-shadow: 0 0 20px rgba(147, 51, 234, 0.4), inset 0 0 20px rgba(147, 51, 234, 0.1);
+            border-color: rgba(147, 51, 234, 0.5);
+        }
+
+        /* Liquid Physics Simulation */
+        .liquid-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, 
+                rgba(6,182,212,0.8) 0%, 
+                rgba(59,130,246,0.6) 50%, 
+                rgba(99,102,241,0.4) 100%);
+            transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 -10px 40px rgba(6,182,212,0.3);
+        }
+
+        .liquid::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -50%;
+            width: 200%;
+            height: 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            animation: wave 3s ease-in-out infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: translateX(0) scaleY(1); }
+            50% { transform: translateX(-25%) scaleY(0.8); }
+        }
+
+        .bubble {
+            position: absolute;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0.1));
+            border-radius: 50%;
+            animation: rise 2s ease-in infinite;
+        }
+
+        @keyframes rise {
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(-100px) scale(1); opacity: 0; }
+        }
+
+        /* 3D Microscope View */
+        .microscope-lens {
+            background: radial-gradient(circle at center, #000 40%, #111 70%, #222 100%);
+            position: relative;
+            overflow: hidden;
+            border: 8px solid #333;
+            border-radius: 50%;
+            box-shadow: 
+                inset 0 0 50px rgba(0,0,0,0.8),
+                0 0 0 10px #444,
+                0 0 30px rgba(0,0,0,0.5);
+        }
+
+        .cell-organism {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(0.5px);
+            animation: drift 10s ease-in-out infinite;
+        }
+
+        @keyframes drift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(30px, -20px) rotate(90deg); }
+            50% { transform: translate(-20px, 30px) rotate(180deg); }
+            75% { transform: translate(-30px, -10px) rotate(270deg); }
+        }
+
+        /* Spectrometer Animation */
+        .spectrum-bar {
+            background: linear-gradient(to top, 
+                rgba(239,68,68,0.8) 0%, 
+                rgba(249,115,22,0.8) 20%, 
+                rgba(234,179,8,0.8) 40%, 
+                rgba(34,197,94,0.8) 60%, 
+                rgba(59,130,246,0.8) 80%, 
+                rgba(147,51,234,0.8) 100%);
+            transition: height 0.3s ease;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        /* Data Visualization */
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, rgba(6,182,212,0.1) 0%, rgba(59,130,246,0.05) 100%);
+            border-left: 3px solid #06b6d4;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 30%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1));
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-300%); }
+        }
+
+        /* Safety Protocols */
+        .safety-active {
+            animation: safety-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes safety-pulse {
+            0%, 100% { border-color: rgba(34,197,94,0.5); box-shadow: 0 0 20px rgba(34,197,94,0.2); }
+            50% { border-color: rgba(34,197,94,1); box-shadow: 0 0 30px rgba(34,197,94,0.4); }
+        }
+
+        .danger-zone {
+            animation: danger-flash 1s ease-in-out infinite;
+        }
+
+        @keyframes danger-flash {
+            0%, 100% { border-color: rgba(239,68,68,0.5); background: rgba(239,68,68,0.1); }
+            50% { border-color: rgba(239,68,68,1); background: rgba(239,68,68,0.2); }
+        }
+
+        /* Professional Controls */
+        .control-knob {
+            background: conic-gradient(from 0deg, #333 0%, #666 50%, #333 100%);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 
+                0 4px 10px rgba(0,0,0,0.5),
+                inset 0 2px 5px rgba(255,255,255,0.1);
+        }
+
+        .control-knob::after {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            width: 4px;
+            height: 40%;
+            background: #06b6d4;
+            transform: translateX(-50%);
+            border-radius: 2px;
+            box-shadow: 0 0 10px #06b6d4;
+        }
+
+        /* Holographic Display */
+        .hologram {
+            background: 
+                linear-gradient(135deg, rgba(6,182,212,0.1) 0%, transparent 50%),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(6,182,212,0.03) 2px,
+                    rgba(6,182,212,0.03) 4px
+                );
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hologram::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(6,182,212,0.1) 50%,
+                transparent 70%
+            );
+            animation: hologram-scan 4s linear infinite;
+        }
+
+        @keyframes hologram-scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(33.33%); }
+        }
+
+        /* Tab Navigation */
+        .tab-btn {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: #06b6d4;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .tab-active::after {
+            width: 80%;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(6,182,212,0.5);
+            border-radius: 3px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            transform: translateY(-100px);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+
+        /* Loading States */
+        .skeleton {
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,0.05) 25%, 
+                rgba(255,255,255,0.1) 50%, 
+                rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Touch Feedback */
+        .touch-feedback:active {
+            transform: scale(0.95);
+            transition: transform 0.1s;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- App Container -->
+    <div id="app" class="min-h-screen pb-24">
+        
+        <!-- Header -->
+        <header class="fixed top-0 w-full z-50 glass-panel border-b border-white/10">
+            <div class="max-w-lg mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+                        <span class="text-xl">🔬</span>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-white tracking-tight">BioChem Pro</h1>
+                        <p class="text-xs text-cyan-400/80 flex items-center gap-1">
+                            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                            سیستم فعال
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleSafetyPanel()" class="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all touch-feedback">
+                        <span class="text-lg">🛡️</span>
+                    </button>
+                    <button onclick="showSettings()" class="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all touch-feedback">
+                        <span class="text-lg">⚙️</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="pt-20 px-4 max-w-lg mx-auto space-y-6">
+
+            <!-- Status Dashboard -->
+            <section class="glass-panel rounded-2xl p-4 space-y-4">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">داشبورد آزمایشگاه</h2>
+                    <span class="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">آنلاین</span>
+                </div>
+                
+                <div class="data-grid">
+                    <div class="metric-card rounded-xl p-3">
+                        <div class="text-xs text-gray-400 mb-1">دمای محیط</div>
+                        <div class="text-xl font-bold text-cyan-400" id="env-temp">24.5°C</div>
+                        <div class="text-xs text-gray-500 mt-1">±0.2° پایدار</div>
+                    </div>
+                    <div class="metric-card rounded-xl p-3" style="border-left-color: #8b5cf6;">
+                        <div class="text-xs text-gray-400 mb-1">فشار</div>
+                        <div class="text-xl font-bold text-purple-400" id="pressure">1.013 bar</div>
+                        <div class="text-xs text-gray-500 mt-1">استاندارد</div>
+                    </div>
+                    <div class="metric-card rounded-xl p-3" style="border-left-color: #22c55e;">
+                        <div class="text-xs text-gray-400 mb-1">رطوبت</div>
+                        <div class="text-xl font-bold text-green-400" id="humidity">45%</div>
+                        <div class="text-xs text-gray-500 mt-1">بهینه</div>
+                    </div>
+                    <div class="metric-card rounded-xl p-3" style="border-left-color: #f59e0b;">
+                        <div class="text-xs text-gray-400 mb-1">pH محیط</div>
+                        <div class="text-xl font-bold text-amber-400" id="env-ph">7.02</div>
+                        <div class="text-xs text-gray-500 mt-1">خنثی</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Module Navigation -->
+            <nav class="flex overflow-x-auto gap-2 pb-2 no-scrollbar">
+                <button onclick="switchModule('chemistry')" class="tab-btn tab-active px-4 py-3 rounded-xl bg-white/5 border border-white/10 whitespace-nowrap text-sm font-medium touch-feedback flex items-center gap-2" data-module="chemistry">
+                    <span>⚗️</span> شیمی
+                </button>
+                <button onclick="switchModule('biology')" class="tab-btn px-4 py-3 rounded-xl bg-white/5 border border-white/10 whitespace-nowrap text-sm font-medium touch-feedback flex items-center gap-2 opacity-70" data-module="biology">
+                    <span>🧬</span> زیست
+                </button>
+                <button onclick="switchModule('physics')" class="tab-btn px-4 py-3 rounded-xl bg-white/5 border border-white/10 whitespace-nowrap text-sm font-medium touch-feedback flex items-center gap-2 opacity-70" data-module="physics">
+                    <span>⚛️</span> فیزیک
+                </button>
+                <button onclick="switchModule('analytics')" class="tab-btn px-4 py-3 rounded-xl bg-white/5 border border-white/10 whitespace-nowrap text-sm font-medium touch-feedback flex items-center gap-2 opacity-70" data-module="analytics">
+                    <span>📊</span> آنالیز
+                </button>
+            </nav>
+
+            <!-- Chemistry Module -->
+            <section id="module-chemistry" class="module-section space-y-4">
+                
+                <!-- Workbench -->
+                <div class="glass-panel rounded-3xl p-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                    
+                    <div class="flex justify-between items-center mb-6 relative z-10">
+                        <h3 class="text-lg font-bold text-white">میز کار شیمیایی</h3>
+                        <div class="flex gap-2">
+                            <button onclick="resetWorkbench()" class="text-xs px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition-all">ریست</button>
+                            <button onclick="saveExperiment()" class="text-xs px-3 py-1 rounded-lg bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">ذخیره</button>
+                        </div>
+                    </div>
+
+                    <!-- Beakers Area -->
+                    <div class="flex justify-center gap-8 mb-8 relative z-10">
+                        <!-- Beaker 1 -->
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="beaker-container cursor-pointer touch-feedback" onclick="selectBeaker(1)">
+                                <div class="beaker w-24 h-32 rounded-b-3xl border-2 border-white/20 relative overflow-hidden bg-white/5 backdrop-blur-sm transition-all" id="beaker-1">
+                                    <div class="liquid w-full absolute bottom-0 transition-all duration-700" id="liquid-1" style="height: 0%; background: linear-gradient(180deg, rgba(6,182,212,0.9), rgba(59,130,246,0.7));">
+                                        <div class="bubble w-2 h-2 left-1/4" style="animation-delay: 0s;"></div>
+                                        <div class="bubble w-3 h-3 left-1/2" style="animation-delay: 0.5s;"></div>
+                                        <div class="bubble w-2 h-2 left-3/4" style="animation-delay: 1s;"></div>
+                                    </div>
+                                    <div class="absolute top-2 left-0 right-0 text-center text-xs text-white/50 font-mono">A</div>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-sm font-medium text-gray-300">ارلنمایر A</div>
+                                <div class="text-xs text-gray-500 mt-1" id="volume-1">0 mL</div>
+                            </div>
+                        </div>
+
+                        <!-- Mixing Zone -->
+                        <div class="flex flex-col items-center justify-center">
+                            <button onclick="mixChemicals()" class="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30 touch-feedback active:scale-90 transition-transform">
+                                <span class="text-2xl">⚡</span>
+                            </button>
+                            <div class="text-xs text-cyan-400 mt-2 font-medium">مخلوط</div>
+                        </div>
+
+                        <!-- Beaker 2 -->
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="beaker-container cursor-pointer touch-feedback" onclick="selectBeaker(2)">
+                                <div class="beaker w-24 h-32 rounded-b-3xl border-2 border-white/20 relative overflow-hidden bg-white/5 backdrop-blur-sm transition-all" id="beaker-2">
+                                    <div class="liquid w-full absolute bottom-0 transition-all duration-700" id="liquid-2" style="height: 0%; background: linear-gradient(180deg, rgba(168,85,247,0.9), rgba(236,72,153,0.7)); filter: hue-rotate(45deg);">
+                                        <div class="bubble w-2 h-2 left-1/4" style="animation-delay: 0.3s;"></div>
+                                        <div class="bubble w-3 h-3 left-1/2" style="animation-delay: 0.8s;"></div>
+                                    </div>
+                                    <div class="absolute top-2 left-0 right-0 text-center text-xs text-white/50 font-mono">B</div>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-sm font-medium text-gray-300">ارلنمایر B</div>
+                                <div class="text-xs text-gray-500 mt-1" id="volume-2">0 mL</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chemical Inventory -->
+                    <div class="space-y-3 relative z-10">
+                        <div class="text-xs text-gray-400 uppercase tracking-wider font-semibold">مواد شیمیایی</div>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button onclick="addChemical('distilled-water')" class="chemical-btn p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 hover:bg-blue-500/20 transition-all touch-feedback group">
+                                <div class="text-xl mb-1 group-hover:scale-110 transition-transform">💧</div>
+                                <div class="text-[10px] text-blue-300">آب مقطر</div>
+                            </button>
+                            <button onclick="addChemical('hcl')" class="chemical-btn p-3 rounded-xl bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 transition-all touch-feedback group">
+                                <div class="text-xl mb-1 group-hover:scale-110 transition-transform">🧪</div>
+                                <div class="text-[10px] text-red-300">HCl</div>
+                            </button>
+                            <button onclick="addChemical('naoh')" class="chemical-btn p-3 rounded-xl bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 transition-all touch-feedback group">
+                                <div class="text-xl mb-1 group-hover:scale-110 transition-transform">⚗️</div>
+                                <div class="text-[10px] text-purple-300">NaOH</div>
+                            </button>
+                            <button onclick="addChemical('cuso4')" class="chemical-btn p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 hover:bg-cyan-500/20 transition-all touch-feedback group">
+                                <div class="text-xl mb-1 group-hover:scale-110 transition-transform">🔷</div>
+                                <div class="text-[10px] text-cyan-300">CuSO₄</div>
+                            </button>
+                            <button onclick="addChemical('indicator')" class="chemical-btn p-3 rounded-xl bg-pink-500/10 border border-pink-500/30 hover:bg-pink-500/20 transition-all touch-feedback group">
+                                <div class="text-xl mb-1 group-hover:scale-110 transition-transform">🌸</div>
+                                <div class="text-[10px] text-pink-300">شاخص</div>
+                            </button>
+                            <button onclick="addChemical('ethanol')" class="chemical-btn p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/30 hover:bg-yellow-500/20 transition-all touch-feedback group">
+                                <div class="text-xl mb-1 group-hover:scale-110 transition-transform">🍶</div>
+                                <div class="text-[10px] text-yellow-300">اتانول</div>
+                            </button>
+                            <button onclick="addChemical('silver-nitrate')" class="chemical-btn p-3 rounded-xl bg-gray-500/10 border border-gray-500/30 hover:bg-gray-500/20 transition-all touch-feedback group">
+                                <div class="text-xl mb-1 group-hover:scale-110 transition-transform">🥈</div>
+                                <div class="text-[10px] text-gray-300">AgNO₃</div>
+                            </button>
+                            <button onclick="addChemical('sodium-carbonate')" class="chemical-btn p-3 rounded-xl bg-green-500/10 border border-green-500/30 hover:bg-green-500/20 transition-all touch-feedback group">
+                                <div class="text-xl mb-1 group-hover:scale-110 transition-transform">🧂</div>
+                                <div class="text-[10px] text-green-300">Na₂CO₃</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Reaction Monitor -->
+                    <div id="reaction-monitor" class="mt-6 p-4 rounded-xl bg-black/40 border border-white/10 hidden">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center animate-pulse">
+                                <span>⚡</span>
+                            </div>
+                            <div>
+                                <div class="text-sm font-bold text-cyan-400">واکنش شیمیایی</div>
+                                <div class="text-xs text-gray-400" id="reaction-timer">00:00:00</div>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-gray-400">پیشرفت:</span>
+                                <span class="text-cyan-400" id="reaction-progress">0%</span>
+                            </div>
+                            <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                                <div id="reaction-bar" class="h-full bg-gradient-to-r from-cyan-400 to-blue-500 w-0 transition-all duration-300"></div>
+                            </div>
+                        </div>
+                        <div class="mt-3 p-2 rounded-lg bg-white/5 text-xs text-gray-300 font-mono" id="reaction-equation">
+                            در انتظار شروع...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- pH Meter -->
+                <div class="glass-panel rounded-2xl p-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">📊</span>
+                            <div>
+                                <div class="text-sm font-bold text-white">pH متر دیجیتال</div>
+                                <div class="text-xs text-gray-400">Hanna HI-98107</div>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold text-white font-mono" id="ph-meter">7.00</div>
+                    </div>
+                    
+                    <div class="relative h-6 rounded-full overflow-hidden mb-2">
+                        <div class="absolute inset-0 bg-gradient-to-r from-red-600 via-yellow-400 via-green-500 to-blue-600"></div>
+                        <div id="ph-indicator" class="absolute top-0 w-1 h-full bg-white shadow-lg transition-all duration-500" style="left: 50%; box-shadow: 0 0 10px white;"></div>
+                    </div>
+                    
+                    <div class="flex justify-between text-xs text-gray-500 font-mono">
+                        <span>0</span>
+                        <span>7</span>
+                        <span>14</span>
+                    </div>
+                    
+                    <div class="mt-4 grid grid-cols-2 gap-3">
+                        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+                            <div class="text-xs text-gray-400">دما جبران</div>
+                            <div class="text-lg font-bold text-cyan-400">25.0°C</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+                            <div class="text-xs text-gray-400">رسانایی</div>
+                            <div class="text-lg font-bold text-purple-400">0.00 mS</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Titration Setup -->
+                <div class="glass-panel rounded-2xl p-5">
+                    <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                        <span>💧</span> دستگاه تیتراسیون خودکار
+                    </h3>
+                    
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="control-knob w-16 h-16 flex-shrink-0" id="titration-knob" onclick="adjustTitration()"></div>
+                        <div class="flex-1">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-400">سرعت تیتر</span>
+                                <span class="text-cyan-400 font-mono" id="titration-rate">0.0 mL/min</span>
+                            </div>
+                            <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                                <div id="titration-bar" class="h-full bg-cyan-500 w-0 transition-all"></div>
+                            </div>
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>0</span>
+                                <span>25 mL</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="startTitration()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-medium shadow-lg shadow-cyan-500/25 touch-feedback active:scale-[0.98] transition-transform">
+                        شروع تیتراسیون
+                    </button>
+                </div>
+            </section>
+
+            <!-- Biology Module -->
+            <section id="module-biology" class="module-section hidden space-y-4">
+                
+                <!-- Microscope -->
+                <div class="glass-panel rounded-3xl p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-white">میکروسکوپ الکترونی</h3>
+                        <div class="flex gap-2">
+                            <button onclick="changeMicroscopeMode('light')" class="px-3 py-1 rounded-lg bg-white/10 text-xs">نوری</button>
+                            <button onclick="changeMicroscopeMode('electron')" class="px-3 py-1 rounded-lg bg-cyan-500/20 text-cyan-400 text-xs border border-cyan-500/30">الکترونی</button>
+                        </div>
+                    </div>
+
+                    <div class="microscope-lens w-full aspect-square max-w-sm mx-auto mb-4 relative">
+                        <div id="microscope-view" class="w-full h-full relative overflow-hidden rounded-full">
+                            <!-- Organisms will be injected here -->
+                        </div>
+                        <div class="absolute inset-0 rounded-full border-4 border-white/10 pointer-events-none"></div>
+                        <div class="absolute top-4 right-4 bg-black/60 px-3 py-1 rounded-full text-xs font-mono text-cyan-400">
+                            Zoom: <span id="microscope-zoom">1000</span>x
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs mb-2">
+                                <span class="text-gray-400">بزرگنمایی</span>
+                                <span class="text-cyan-400 font-mono" id="zoom-display">1000x</span>
+                            </div>
+                            <input type="range" min="100" max="10000" value="1000" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-cyan-500" oninput="updateMicroscopeZoom(this.value)">
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="prepareSlide('blood')" class="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-center touch-feedback">
+                                <div class="text-2xl mb-1">🩸</div>
+                                <div class="text-xs text-red-300">خون</div>
+                            </button>
+                            <button onclick="prepareSlide('bacteria')" class="p-3 rounded-xl bg-green-500/10 border border-green-500/30 text-center touch-feedback">
+                                <div class="text-2xl mb-1">🦠</div>
+                                <div class="text-xs text-green-300">باکتری</div>
+                            </button>
+                            <button onclick="prepareSlide('tissue')" class="p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 text-center touch-feedback">
+                                <div class="text-2xl mb-1">🧬</div>
+                                <div class="text-xs text-blue-300">بافت</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DNA Analysis -->
+                <div class="glass-panel rounded-2xl p-5">
+                    <h3 class="text-sm font-bold text-white mb-4">آنالیز DNA</h3>
+                    <div class="hologram rounded-xl p-4 h-40 flex items-center justify-center relative mb-4">
+                        <div class="text-center">
+                            <div class="text-4xl mb-2 animate-pulse">🧬</div>
+                            <div class="text-xs text-cyan-400 font-mono">Waiting for sample...</div>
+                        </div>
+                    </div>
+                    <button onclick="sequenceDNA()" class="w-full py-3 rounded-xl bg-purple-500/20 border border-purple-500/50 text-purple-300 hover:bg-purple-500/30 transition-all touch-feedback">
+                        شروع توالی‌یابی
+                    </button>
+                </div>
+
+                <!-- Cell Culture -->
+                <div class="glass-panel rounded-2xl p-5">
+                    <h3 class="text-sm font-bold text-white mb-4">کشت سلولی</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+                            <div class="text-xs text-gray-400">تراکم سلولی</div>
+                            <div class="text-xl font-bold text-green-400">2.4×10⁶</div>
+                            <div class="text-xs text-gray-500">cells/mL</div>
+                        </div>
+                        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+                            <div class="text-xs text-gray-400">حیات‌پذیری</div>
+                            <div class="text-xl font-bold text-cyan-400">98.2%</div>
+                            <div class="text-xs text-gray-500">Trypan Blue</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Physics Module -->
+            <section id="module-physics" class="module-section hidden space-y-4">
+                
+                <!-- Particle Accelerator -->
+                <div class="glass-panel rounded-3xl p-6">
+                    <h3 class="text-lg font-bold text-white mb-4">شتاب‌دهنده ذرات</h3>
+                    <div class="relative h-48 bg-black/60 rounded-2xl overflow-hidden mb-4 border border-white/10">
+                        <div id="particle-canvas" class="w-full h-full relative">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-32 h-32 border-2 border-cyan-500/20 rounded-full animate-[spin_4s_linear_infinite]"></div>
+                                <div class="w-24 h-24 border-2 border-purple-500/20 rounded-full absolute animate-[spin_3s_linear_infinite_reverse]"></div>
+                                <div class="w-16 h-16 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full absolute animate-pulse shadow-lg shadow-cyan-500/50"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <button onclick="fireParticle('proton')" class="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 touch-feedback">
+                            ⚛️ پروتون
+                        </button>
+                        <button onclick="fireParticle('electron')" class="p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-300 touch-feedback">
+                            ⚡ الکترون
+                        </button>
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-400">انرژی kinetic</span>
+                            <span class="text-cyan-400 font-mono" id="kinetic-energy">0 eV</span>
+                        </div>
+                        <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                            <div id="energy-bar" class="h-full bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 w-0 transition-all duration-500"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quantum States -->
+                <div class="glass-panel rounded-2xl p-5">
+                    <h3 class="text-sm font-bold text-white mb-4">حالت‌های کوانتومی</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
+                            <div class="flex items-center gap-3">
+                                <div class="w-3 h-3 rounded-full bg-green-400 animate-pulse"></div>
+                                <span class="text-sm">برهم‌نهی</span>
+                            </div>
+                            <span class="text-xs text-gray-400 font-mono">|ψ⟩ = α|0⟩ + β|1⟩</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
+                            <div class="flex items-center gap-3">
+                                <div class="w-3 h-3 rounded-full bg-purple-400 animate-pulse" style="animation-delay: 0.5s"></div>
+                                <span class="text-sm">درهم‌تنیدگی</span>
+                            </div>
+                            <span class="text-xs text-gray-400 font-mono">|Φ⁺⟩ = (|00⟩+|11⟩)/√2</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Module -->
+            <section id="module-analytics" class="module-section hidden space-y-4">
+                
+                <!-- Real-time Charts -->
+                <div class="glass-panel rounded-3xl p-6">
+                    <h3 class="text-lg font-bold text-white mb-4">نمودارهای Real-time</h3>
+                    <div class="chart-container mb-4">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
+                            <div class="text-xs text-gray-400">میانگین</div>
+                            <div class="text-sm font-bold text-cyan-400">24.5</div>
+                        </div>
+                        <div class="p-2 rounded-lg bg-purple-500/10 border border-purple-500/30">
+                            <div class="text-xs text-gray-400">انحراف معیار</div>
+                            <div class="text-sm font-bold text-purple-400">±0.3</div>
+                        </div>
+                        <div class="p-2 rounded-lg bg-green-500/10 border border-green-500/30">
+                            <div class="text-xs text-gray-400">R²</div>
+                            <div class="text-sm font-bold text-green-400">0.998</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spectrometer -->
+                <div class="glass-panel rounded-2xl p-5">
+                    <h3 class="text-sm font-bold text-white mb-4">طیف‌سنج جرمی</h3>
+                    <div class="h-32 flex items-end justify-around gap-1 mb-3 px-2">
+                        <div class="spectrum-bar w-full rounded-t transition-all duration-500" style="height: 30%"></div>
+                        <div class="spectrum-bar w-full rounded-t transition-all duration-500" style="height: 60%; animation-delay: 0.1s"></div>
+                        <div class="spectrum-bar w-full rounded-t transition-all duration-500" style="height: 45%; animation-delay: 0.2s"></div>
+                        <div class="spectrum-bar w-full rounded-t transition-all duration-500" style="height: 80%; animation-delay: 0.3s"></div>
+                        <div class="spectrum-bar w-full rounded-t transition-all duration-500" style="height: 55%; animation-delay: 0.4s"></div>
+                        <div class="spectrum-bar w-full rounded-t transition-all duration-500" style="height: 40%; animation-delay: 0.5s"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500 font-mono">
+                        <span>m/z 50</span>
+                        <span>100</span>
+                        <span>200</span>
+                        <span>500</span>
+                    </div>
+                </div>
+
+                <!-- Data Export -->
+                <div class="glass-panel rounded-2xl p-5">
+                    <h3 class="text-sm font-bold text-white mb-4">خروجی داده</h3>
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/10">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">📄</span>
+                                <div>
+                                    <div class="text-sm">گزارش آزمایش</div>
+                                    <div class="text-xs text-gray-500">PDF • 2.4 MB</div>
+                                </div>
+                            </div>
+                            <button onclick="exportReport('pdf')" class="p-2 rounded-lg bg-cyan-500/20 text-cyan-400 touch-feedback">
+                                <span>⬇️</span>
+                            </button>
+                        </div>
+                        <div class="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/10">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">📊</span>
+                                <div>
+                                    <div class="text-sm">داده خام</div>
+                                    <div class="text-xs text-gray-500">CSV • 156 KB</div>
+                                </div>
+                            </div>
+                            <button onclick="exportReport('csv')" class="p-2 rounded-lg bg-purple-500/20 text-purple-400 touch-feedback">
+                                <span>⬇️</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Safety Panel Modal -->
+        <div id="safety-panel" class="fixed inset-0 z-[100] hidden bg-black/80 backdrop-blur-sm">
+            <div class="absolute inset-x-0 bottom-0 glass-panel rounded-t-3xl p-6 max-w-lg mx-auto transform transition-transform translate-y-full" id="safety-content">
+                <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-6"></div>
+                
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center text-2xl safety-active">
+                        🛡️
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">پروتکل ایمنی</h3>
+                        <p class="text-sm text-gray-400">وضعیت: <span class="text-green-400">فعال</span></p>
+                    </div>
+                </div>
+
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+                        <span class="text-2xl">🥽</span>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium">عینک محافظ</div>
+                            <div class="text-xs text-gray-400">ANSI Z87.1 استاندارد</div>
+                        </div>
+                        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+                        <span class="text-2xl">🧤</span>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium">دستکش نیتریل</div>
+                            <div class="text-xs text-gray-400">ضخامت 4 mil</div>
+                        </div>
+                        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+                        <span class="text-2xl">🥼</span>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium">روپوش آزمایشگاهی</div>
+                            <div class="text-xs text-gray-400">ضد اسید و قلیایی</div>
+                        </div>
+                        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+                        <span class="text-2xl">🌬️</span>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium">هود شیمیایی</div>
+                            <div class="text-xs text-gray-400">جریان هوا: 0.5 m/s</div>
+                        </div>
+                        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                    </div>
+                </div>
+
+                <button onclick="toggleSafetyPanel()" class="w-full py-4 rounded-xl bg-white/10 hover:bg-white/20 transition-all text-white font-medium touch-feedback">
+                    بستن پنل
+                </button>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast fixed top-24 left-1/2 -translate-x-1/2 glass-panel px-6 py-3 rounded-full z-[60] border border-cyan-500/50 shadow-lg shadow-cyan-500/20">
+            <span id="toast-message" class="text-sm text-cyan-300 font-medium"></span>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 w-full glass-panel border-t border-white/10 p-4 z-50">
+            <div class="flex justify-around max-w-lg mx-auto">
+                <button onclick="showQuickAction('protocol')" class="flex flex-col items-center gap-1 text-gray-400 hover:text-cyan-400 transition-colors touch-feedback">
+                    <span class="text-xl">📋</span>
+                    <span class="text-[10px]">پروتکل</span>
+                </button>
+                <button onclick="showQuickAction('calculator')" class="flex flex-col items-center gap-1 text-gray-400 hover:text-cyan-400 transition-colors touch-feedback">
+                    <span class="text-xl">🧮</span>
+                    <span class="text-[10px]">محاسبه</span>
+                </button>
+                <button onclick="resetAll()" class="flex flex-col items-center gap-1 text-gray-400 hover:text-red-400 transition-colors touch-feedback">
+                    <span class="text-xl">🔄</span>
+                    <span class="text-[10px]">ریست</span>
+                </button>
+                <button onclick="showQuickAction('share')" class="flex flex-col items-center gap-1 text-gray-400 hover:text-cyan-400 transition-colors touch-feedback">
+                    <span class="text-xl">🔗</span>
+                    <span class="text-[10px]">اشتراک</span>
+                </button>
+            </div>
+        </nav>
+
+    </div>
+
+    <script>
+        // State Management
+        const AppState = {
+            currentModule: 'chemistry',
+            selectedBeaker: 1,
+            beakers: {
+                1: { volume: 0, chemicals: [], color: 'rgba(6,182,212,0.8)', ph: 7.0 },
+                2: { volume: 0, chemicals: [], color: 'rgba(168,85,247,0.8)', ph: 7.0 }
+            },
+            microscope: { zoom: 1000, mode: 'electron', sample: null },
+            titration: { rate: 0, volume: 0, running: false },
+            reactions: []
+        };
+
+        // Chemical Database
+        const ChemicalDB = {
+            'distilled-water': { name: 'آب مقطر', formula: 'H₂O', ph: 7.0, color: 'rgba(200,230,255,0.6)', danger: 0 },
+            'hcl': { name: 'اسید کلریدریک', formula: 'HCl', ph: 1.0, color: 'rgba(255,200,100,0.8)', danger: 3 },
+            'naoh': { name: 'سدیم هیدروکسید', formula: 'NaOH', ph: 13.0, color: 'rgba(200,100,255,0.8)', danger: 3 },
+            'cuso4': { name: 'سولفات مس', formula: 'CuSO₄', ph: 5.0, color: 'rgba(100,200,255,0.8)', danger: 1 },
+            'indicator': { name: 'شاخص فنول', formula: 'C₂₀H₁₄O₄', ph: null, color: 'rgba(255,100,200,0.6)', danger: 0 },
+            'ethanol': { name: 'اتانول', formula: 'C₂H₅OH', ph: 7.0, color: 'rgba(255,255,200,0.5)', danger: 2 },
+            'silver-nitrate': { name: 'نیترات نقره', formula: 'AgNO₃', ph: 6.0, color: 'rgba(220,220,240,0.7)', danger: 2 },
+            'sodium-carbonate': { name: 'کربنات سدیم', formula: 'Na₂CO₃', ph: 11.0, color: 'rgba(255,255,255,0.8)', danger: 1 }
+        };
+
+        // Module Switching
+        function switchModule(module) {
+            // Hide all modules
+            document.querySelectorAll('.module-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`module-${module}`).classList.remove('hidden');
+            
+            // Update tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('tab-active');
+                btn.classList.add('opacity-70');
+            });
+            event.target.closest('.tab-btn').classList.add('tab-active');
+            event.target.closest('.tab-btn').classList.remove('opacity-70');
+            
+            AppState.currentModule = module;
+            
+            // Module-specific initialization
+            if (module === 'analytics') initCharts();
+            if (module === 'biology') prepareSlide('cell');
+            
+            showToast(`ماژول ${getModuleName(module)} فعال شد`);
+        }
+
+        function getModuleName(module) {
+            const names = { chemistry: 'شیمی', biology: 'زیست', physics: 'فیزیک', analytics: 'آنالیز' };
+            return names[module];
+        }
+
+        // Beaker Operations
+        function selectBeaker(num) {
+            AppState.selectedBeaker = num;
+            
+            // Visual feedback
+            document.querySelectorAll('.beaker').forEach((el, i) => {
+                if (i + 1 === num) {
+                    el.style.borderColor = 'rgba(6,182,212,0.8)';
+                    el.style.boxShadow = '0 0 20px rgba(6,182,212,0.3)';
+                } else {
+                    el.style.borderColor = 'rgba(255,255,255,0.2)';
+                    el.style.boxShadow = 'none';
+                }
+            });
+            
+            showToast(`ارلنمایر ${num === 1 ? 'A' : 'B'} انتخاب شد`);
+        }
+
+        function addChemical(chemicalId) {
+            const chemical = ChemicalDB[chemicalId];
+            const beaker = AppState.beakers[AppState.selectedBeaker];
+            
+            if (beaker.volume >= 100) {
+                showToast('⚠️ ارلن پر است!');
+                return;
+            }
+            
+            // Add chemical
+            beaker.chemicals.push(chemicalId);
+            beaker.volume = Math.min(beaker.volume + 20, 100);
+            
+            // Update pH (simplified calculation)
+            if (chemical.ph !== null) {
+                beaker.ph = (beaker.ph + chemical.ph) / 2;
+            }
+            
+            // Update UI
+            updateBeakerUI(AppState.selectedBeaker);
+            updatePHMeter();
+            
+            // Danger warning
+            if (chemical.danger >= 2) {
+                showToast(`⚠️ ${chemical.name} - مواد خطرناک`);
+            } else {
+                showToast(`${chemical.name} اضافه شد`);
+            }
+        }
+
+        function updateBeakerUI(beakerNum) {
+            const beaker = AppState.beakers[beakerNum];
+            const liquid = document.getElementById(`liquid-${beakerNum}`);
+            const volumeLabel = document.getElementById(`volume-${beakerNum}`);
+            
+            liquid.style.height = beaker.volume + '%';
+            volumeLabel.textContent = (beaker.volume * 2.5).toFixed(0) + ' mL';
+            
+            // Mix colors if multiple chemicals
+            if (beaker.chemicals.length > 0) {
+                const colors = beaker.chemicals.map(id => ChemicalDB[id].color);
+                liquid.style.background = `linear-gradient(180deg, ${colors.join(', ')})`;
+            }
+        }
+
+        function mixChemicals() {
+            const b1 = AppState.beakers[1];
+            const b2 = AppState.beakers[2];
+            
+            if (b1.chemicals.length === 0 || b2.chemicals.length === 0) {
+                showToast('❌ هر دو ارلن باید محتوی داشته باشند');
+                return;
+            }
+            
+            // Show reaction monitor
+            const monitor = document.getElementById('reaction-monitor');
+            monitor.classList.remove('hidden');
+            
+            // Simulate reaction
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 5;
+                document.getElementById('reaction-progress').textContent = progress + '%';
+                document.getElementById('reaction-bar').style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    completeReaction(b1, b2);
+                }
+            }, 200);
+            
+            // Determine reaction equation
+            const equation = determineReactionEquation(b1.chemicals, b2.chemicals);
+            document.getElementById('reaction-equation').textContent = equation;
+        }
+
+        function determineReactionEquation(chem1, chem2) {
+            // Simplified reaction logic
+            if (chem1.includes('hcl') && chem2.includes('naoh')) {
+                return 'HCl + NaOH → NaCl + H₂O + 57.3 kJ/mol';
+            } else if (chem1.includes('cuso4') && chem2.includes('naoh')) {
+                return 'CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄';
+            } else if (chem1.includes('silver-nitrate') && chem2.includes('sodium-carbonate')) {
+                return '2AgNO₃ + Na₂CO₃ → Ag₂CO₃↓ + 2NaNO₃';
+            }
+            return 'ترکیب محلول‌ها...';
+        }
+
+        function completeReaction(b1, b2) {
+            showToast('✅ واکنش کامل شد');
+            
+            // Reset beakers after delay
+            setTimeout(() => {
+                document.getElementById('reaction-monitor').classList.add('hidden');
+            }, 3000);
+        }
+
+        function updatePHMeter() {
+            const beaker = AppState.beakers[AppState.selectedBeaker];
+            const ph = beaker.ph.toFixed(2);
+            
+            document.getElementById('ph-meter').textContent = ph;
+            document.getElementById('ph-indicator').style.left = (beaker.ph / 14 * 100) + '%';
+        }
+
+        // Titration
+        function adjustTitration() {
+            const rates = [0, 0.5, 1.0, 2.5, 5.0];
+            const currentRate = parseFloat(document.getElementById('titration-rate').textContent);
+            const nextIndex = (rates.indexOf(currentRate) + 1) % rates.length;
+            const newRate = rates[nextIndex];
+            
+            document.getElementById('titration-rate').textContent = newRate.toFixed(1) + ' mL/min';
+            document.getElementById('titration-bar').style.width = (newRate / 5 * 100) + '%';
+            
+            // Rotate knob visually
+            const knob = document.getElementById('titration-knob');
+            knob.style.transform = `rotate(${nextIndex * 72}deg)`;
+        }
+
+        function startTitration() {
+            if (AppState.titration.running) return;
+            
+            AppState.titration.running = true;
+            showToast('🔬 تیتراسیون شروع شد');
+            
+            // Simulate titration curve
+            const interval = setInterval(() => {
+                AppState.titration.volume += 0.1;
+                if (AppState.titration.volume >= 25) {
+                    clearInterval(interval);
+                    AppState.titration.running = false;
+                    showToast('✅ تیتراسیون کامل شد');
+                }
+            }, 100);
+        }
+
+        // Microscope Functions
+        function prepareSlide(type) {
+            const view = document.getElementById('microscope-view');
+            view.innerHTML = '';
+            
+            const configs = {
+                blood: { color: 'rgba(239,68,68,0.6)', count: 20, size: [15, 25] },
+                bacteria: { color: 'rgba(34,197,94,0.7)', count: 50, size: [3, 8] },
+                tissue: { color: 'rgba(59,130,246,0.5)', count: 8, size: [40, 80] }
+            };
+            
+            const config = configs[type];
+            
+            for (let i = 0; i < config.count; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell-organism';
+                const size = Math.random() * (config.size[1] - config.size[0]) + config.size[0];
+                cell.style.width = size + 'px';
+                cell.style.height = size + 'px';
+                cell.style.background = `radial-gradient(circle at 30% 30%, ${config.color}, transparent)`;
+                cell.style.left = Math.random() * 90 + '%';
+                cell.style.top = Math.random() * 90 + '%';
+                cell.style.animationDelay = Math.random() * 10 + 's';
+                cell.style.animationDuration = (10 + Math.random() * 10) + 's';
+                view.appendChild(cell);
+            }
+            
+            AppState.microscope.sample = type;
+            showToast(`🔬 لام ${type} آماده شد`);
+        }
+
+        function updateMicroscopeZoom(value) {
+            AppState.microscope.zoom = value;
+            document.getElementById('microscope-zoom').textContent = value;
+            document.getElementById('zoom-display').textContent = value + 'x';
+            
+            const view = document.getElementById('microscope-view');
+            const scale = value / 1000;
+            view.style.transform = `scale(${scale})`;
+        }
+
+        // DNA Sequencing
+        function sequenceDNA() {
+            const bases = ['A', 'T', 'G', 'C'];
+            let sequence = '';
+            for (let i = 0; i < 30; i++) {
+                sequence += bases[Math.floor(Math.random() * 4)];
+            }
+            
+            showToast(`🧬 توالی: ${sequence.substring(0, 15)}...`);
+            
+            // Animate hologram
+            const hologram = document.querySelector('.hologram');
+            hologram.style.boxShadow = '0 0 40px rgba(6,182,212,0.5)';
+            setTimeout(() => {
+                hologram.style.boxShadow = 'none';
+            }, 2000);
+        }
+
+        // Particle Physics
+        function fireParticle(type) {
+            const canvas = document.getElementById('particle-canvas');
+            const energy = Math.random() * 500 + 500;
+            
+            document.getElementById('kinetic-energy').textContent = energy.toFixed(0) + ' eV';
+            document.getElementById('energy-bar').style.width = (energy / 1000 * 100) + '%';
+            
+            // Create particle trail
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+                position: absolute;
+                width: 6px;
+                height: 6px;
+                background: ${type === 'proton' ? '#ef4444' : '#3b82f6'};
+                border-radius: 50%;
+                left: 50%;
+                top: 50%;
+                box-shadow: 0 0 20px currentColor;
+                pointer-events: none;
+            `;
+            canvas.appendChild(particle);
+            
+            // Animate
+            let angle = 0;
+            let radius = 0;
+            const anim = setInterval(() => {
+                angle += 0.3;
+                radius += 3;
+                const x = 50 + Math.cos(angle) * radius;
+                const y = 50 + Math.sin(angle) * radius;
+                particle.style.left = x + '%';
+                particle.style.top = y + '%';
+                
+                if (radius > 45) {
+                    clearInterval(anim);
+                    particle.remove();
+                }
+            }, 50);
+            
+            showToast(`⚛️ ${type === 'proton' ? 'پروتون' : 'الکترون'} شتاب داده شد`);
+        }
+
+        // Charts
+        let mainChart = null;
+        
+        function initCharts() {
+            if (mainChart) return;
+            
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            mainChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 20}, (_, i) => i),
+                    datasets: [{
+                        label: 'Absorbance',
+                        data: Array.from({length: 20}, () => Math.random() * 2),
+                        borderColor: '#06b6d4',
+                        backgroundColor: 'rgba(6,182,212,0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Transmittance',
+                        data: Array.from({length: 20}, () => Math.random() * 100),
+                        borderColor: '#a855f7',
+                        backgroundColor: 'rgba(168,85,247,0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { labels: { color: '#9ca3af' } }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#9ca3af' } },
+                        y: { 
+                            grid: { color: 'rgba(255,255,255,0.1)' }, 
+                            ticks: { color: '#9ca3af' },
+                            position: 'left'
+                        },
+                        y1: {
+                            grid: { drawOnChartArea: false },
+                            ticks: { color: '#9ca3af' },
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+            
+            // Update chart periodically
+            setInterval(() => {
+                if (mainChart && AppState.currentModule === 'analytics') {
+                    mainChart.data.datasets[0].data.shift();
+                    mainChart.data.datasets[0].data.push(Math.random() * 2);
+                    mainChart.data.datasets[1].data.shift();
+                    mainChart.data.datasets[1].data.push(Math.random() * 100);
+                    mainChart.update('none');
+                }
+            }, 1000);
+        }
+
+        // Export Functions
+        function exportReport(format) {
+            const data = {
+                timestamp: new Date().toISOString(),
+                experiment: 'BioChem Pro Session',
+                beakers: AppState.beakers,
+                microscope: AppState.microscope,
+                reactions: AppState.reactions
+            };
+            
+            showToast(`📥 در حال تهیه گزارش ${format.toUpperCase()}...`);
+            
+            setTimeout(() => {
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `lab-report-${Date.now()}.${format}`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showToast('✅ گزارش دانلود شد');
+            }, 1500);
+        }
+
+        // Safety Panel
+        function toggleSafetyPanel() {
+            const panel = document.getElementById('safety-panel');
+            const content = document.getElementById('safety-content');
+            
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                setTimeout(() => {
+                    content.classList.remove('translate-y-full');
+                }, 10);
+            } else {
+                content.classList.add('translate-y-full');
+                setTimeout(() => {
+                    panel.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        // Utility Functions
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function resetWorkbench() {
+            AppState.beakers[1] = { volume: 0, chemicals: [], color: 'rgba(6,182,212,0.8)', ph: 7.0 };
+            AppState.beakers[2] = { volume: 0, chemicals: [], color: 'rgba(168,85,247,0.8)', ph: 7.0 };
+            
+            updateBeakerUI(1);
+            updateBeakerUI(2);
+            updatePHMeter();
+            
+            document.getElementById('reaction-monitor').classList.add('hidden');
+            
+            showToast('🔄 میز کار ریست شد');
+        }
+
+        function resetAll() {
+            resetWorkbench();
+            AppState.titration = { rate: 0, volume: 0, running: false };
+            AppState.microscope = { zoom: 1000, mode: 'electron', sample: null };
+            showToast('🔄 سیستم کاملاً ریست شد');
+        }
+
+        function saveExperiment() {
+            const experiment = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleString('fa-IR'),
+                beakers: AppState.beakers,
+                reactions: AppState.reactions
+            };
+            
+            // Save to localStorage (simulated)
+            const saved = JSON.parse(localStorage.getItem('experiments') || '[]');
+            saved.push(experiment);
+            localStorage.setItem('experiments', JSON.stringify(saved));
+            
+            showToast('💾 آزمایش ذخیره شد');
+        }
+
+        function showSettings() {
+            showToast('⚙️ تنظیمات (در نسخه کامل)');
+        }
+
+        function showQuickAction(action) {
+            const messages = {
+                protocol: '📋 پروتکل‌ها بارگذاری شدند',
+                calculator: '🧮 ماشین‌حساب علمی فعال شد',
+                share: '🔗 لینک اشتراک کپی شد'
+            };
+            showToast(messages[action] || 'در حال توسعه...');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            showToast('🔬 BioChem Pro آماده است');
+            
+            // Simulate environmental changes
+            setInterval(() => {
+                const temp = 24 + Math.random() * 2;
+                document.getElementById('env-temp').textContent = temp.toFixed(1) + '°C';
+            }, 5000);
+            
+            // Initialize first beaker selection
+            selectBeaker(1);
+        });
+
+        // Touch handling for mobile
+        document.addEventListener('touchstart', function() {}, {passive: true});
+    </script>
+</body>
+</html>
